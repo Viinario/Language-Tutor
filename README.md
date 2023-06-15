@@ -8,7 +8,7 @@ The "Language Tutor" will be a mobile application aimed at helping users improve
 
 # Title: Status
 
-## Chat with Sophia is ready
+## Chat with Sophia is ready 🌎🚀
 
 
 https://github.com/Viinario/Language_Tutor/assets/69995288/53bea5f5-0fea-41bd-bf21-49dcd3f185f7

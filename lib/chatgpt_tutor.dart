@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'package:http/http.dart'
+    as http; // Importando corretamente o pacote http
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -5,7 +9,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +24,7 @@ class MyApp extends StatelessWidget {
 }
 
 class WhatsAppChatScreen extends StatefulWidget {
-  const WhatsAppChatScreen({super.key});
+  const WhatsAppChatScreen({Key? key}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -31,12 +35,51 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   final List<Message> _messages = [];
 
-  void _sendMessage() {
+  Future<String> getAIResponse(String message) async {
+    var url = Uri.parse(
+        "https://api.openai.com/v1/engines/text-davinci-003/completions");
+    var headers = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer token",
+    };
+    var body = jsonEncode({
+      "prompt":
+          "Sophia is a chatbot that reluctantly answers questions with sarcastic responses You: $message",
+      "temperature": 0.5,
+      "max_tokens": 30,
+      "top_p": 1.0,
+      "frequency_penalty": 0.5,
+      "presence_penalty": 0.0,
+      "stop": ["You:"]
+    });
+
+    var response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      var choices = data["choices"];
+      if (choices.isNotEmpty) {
+        return choices[0]["text"];
+      }
+    }
+
+    return "Error: Failed to get AI response";
+  }
+
+  void _sendMessage() async {
     String text = _textEditingController.text.trim();
     if (text.isNotEmpty) {
       setState(() {
         _messages.add(Message(sender: 'Eu', text: text));
         _textEditingController.clear();
+      });
+
+      String aiResponse = await getAIResponse(text);
+
+      setState(() {
+        _messages.add(Message(
+            sender: 'Sophia Bennett',
+            text: aiResponse.replaceAll(RegExp(r'Sophia:'), '')));
       });
     }
   }
@@ -122,11 +165,12 @@ class MessageBubble extends StatelessWidget {
   final String text;
   final bool isMe;
 
-  const MessageBubble(
-      {super.key,
-      required this.sender,
-      required this.text,
-      required this.isMe});
+  const MessageBubble({
+    Key? key,
+    required this.sender,
+    required this.text,
+    required this.isMe,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -138,9 +182,9 @@ class MessageBubble extends StatelessWidget {
         children: [
           Text(
             sender,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 12.0,
-              color: Colors.grey[600],
+              color: Colors.grey,
             ),
           ),
           Material(

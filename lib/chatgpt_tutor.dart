@@ -1,7 +1,5 @@
 import 'dart:convert';
-import 'package:http/http.dart'
-    as http; // Importando corretamente o pacote http
-
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 void main() {
@@ -44,7 +42,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
     };
     var body = jsonEncode({
       "prompt":
-          "Sophia is a chatbot that reluctantly answers questions with sarcastic responses You: $message",
+          "Sophia is a chatbot that only understand english and that reluctantly answers questions with sarcastic responses You: $message",
       "temperature": 0.5,
       "max_tokens": 30,
       "top_p": 1.0,
@@ -79,7 +77,9 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
       setState(() {
         _messages.add(Message(
             sender: 'Sophia Bennett',
-            text: aiResponse.replaceAll(RegExp(r'Sophia:'), '')));
+            text: aiResponse
+                .replaceAll(RegExp(r'Sophia:'), '')
+                .replaceAll("\n", "")));
       });
     }
   }
@@ -106,48 +106,57 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: _messages.length,
-              itemBuilder: (BuildContext context, int index) {
-                Message message = _messages[index];
-                return MessageBubble(
-                  sender: message.sender,
-                  text: message.text,
-                  isMe: message.sender == 'Eu',
-                );
-              },
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+                "assets/wallpaper.jpg"), // Substitua pelo caminho da sua imagem de fundo
+            fit: BoxFit.cover,
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: _messages.length,
+                itemBuilder: (BuildContext context, int index) {
+                  Message message = _messages[index];
+                  return MessageBubble(
+                    sender: message.sender,
+                    text: message.text,
+                    isMe: message.sender == 'Eu',
+                  );
+                },
               ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _textEditingController,
-                    decoration: const InputDecoration(
-                      hintText: 'Digite uma mensagem...',
-                      border: InputBorder.none,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(
+                  top: BorderSide(color: Color.fromARGB(255, 0, 0, 0)),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _textEditingController,
+                      decoration: const InputDecoration(
+                        hintText: 'Digite uma mensagem...',
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: _sendMessage,
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: _sendMessage,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -184,7 +193,7 @@ class MessageBubble extends StatelessWidget {
             sender,
             style: const TextStyle(
               fontSize: 12.0,
-              color: Colors.grey,
+              color: Color.fromARGB(255, 0, 0, 0),
             ),
           ),
           Material(

@@ -57,7 +57,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
       "prompt":
           "Sophia is a chatbot that only understand english and that reluctantly answers questions with sarcastic responses You: $message",
       "temperature": 0.5,
-      "max_tokens": 30,
+      "max_tokens": 60,
       "top_p": 1.0,
       "frequency_penalty": 0.5,
       "presence_penalty": 0.0,

@@ -33,6 +33,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   final List<Message> _messages = [];
   final Set<int> _readMessageIds = {};
+  bool _isSendingMessage = false;
 
   Future<String> getAIResponse(String message) async {
     var url = Uri.parse(
@@ -71,6 +72,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
       setState(() {
         _messages.add(Message(sender: 'Eu', text: text, isRead: true));
         _textEditingController.clear();
+        _isSendingMessage = true;
       });
 
       String aiResponse = await getAIResponse(text);
@@ -81,6 +83,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
             text: aiResponse
                 .replaceAll(RegExp(r'Sophia:'), '')
                 .replaceAll("\n", "")));
+        _isSendingMessage = false;
       });
     }
   }
@@ -102,18 +105,25 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
         leading: const CircleAvatar(
           backgroundImage: AssetImage("assets/contact_photo.jpg"),
         ),
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Sophia Bennett',
               style: TextStyle(fontSize: 16),
             ),
-            Text(
-              'Online',
-              style:
-                  TextStyle(fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
-            ),
+            if (_isSendingMessage)
+              const Text(
+                'Escrevendo...',
+                style: TextStyle(
+                    fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
+              )
+            else
+              const Text(
+                'Online',
+                style: TextStyle(
+                    fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
+              ),
           ],
         ),
       ),

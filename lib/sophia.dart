@@ -1,11 +1,16 @@
+//Essas importações são necessárias para usar as bibliotecas Dart e Flutter necessárias para o funcionamento do aplicativo, incluindo a conversão de JSON, o envio de solicitações HTTP e o uso de widgets do Flutter.
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
+//Função principal:
+//A função main() é o ponto de entrada do aplicativo Flutter. Ela chama a função runApp() para iniciar a execução do aplicativo com o widget MyApp.
 void main() {
   runApp(const MyApp());
 }
 
+//Classe MyApp
+//A classe MyApp é um widget de aplicativo Flutter que configura a aparência e a estrutura do aplicativo. No método build(), ele retorna um widget MaterialApp com um tema e define a tela inicial como WhatsAppChatScreen.
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -21,6 +26,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+//A classe WhatsAppChatScreen é um widget de tela do Flutter que representa a tela de bate-papo do WhatsApp. Ela estende StatefulWidget para que possa ter um estado mutável. O método createState() retorna uma instância da classe _WhatsAppChatScreenState, que é responsável por gerenciar o estado da tela.
 class WhatsAppChatScreen extends StatefulWidget {
   const WhatsAppChatScreen({Key? key}) : super(key: key);
 
@@ -29,12 +35,17 @@ class WhatsAppChatScreen extends StatefulWidget {
   _WhatsAppChatScreenState createState() => _WhatsAppChatScreenState();
 }
 
+//A classe _WhatsAppChatScreenState é o estado da tela de bate-papo do WhatsApp. Ela mantém o controle do estado dos campos de texto, mensagens enviadas e lidas, e também possui uma variável _isSendingMessage que indica se uma mensagem está sendo enviada ou não. Ele usa um controlador TextEditingController para rastrear o texto digitado pelo usuário
 class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   final List<Message> _messages = [];
   final Set<int> _readMessageIds = {};
   bool _isSendingMessage = false;
 
+  //Função getAIResponse():
+  //A função getAIResponse() é uma função assíncrona que faz uma solicitação HTTP POST para a API do OpenAI para obter uma resposta do chatbot. Ela recebe uma mensagem como entrada e retorna uma Future<String> contendo a resposta.
+  //Nesta função, um URL da API é definido com base na URL fornecida. Os cabeçalhos são definidos com o tipo de conteúdo como JSON e um token de autorização. O corpo da solicitação é definido usando jsonEncode() para criar uma sequência JSON contendo a mensagem do usuário.
+  //Em seguida, a solicitação HTTP POST é enviada usando http.post(), passando o URL, cabeçalhos e corpo da solicitação. Se a resposta tiver um código de status 200 (sucesso), os dados da resposta são decodificados usando jsonDecode() e podem ser processados de acordo.
   Future<String> getAIResponse(String message) async {
     var url = Uri.parse(
         "https://api.openai.com/v1/engines/text-davinci-003/completions");
@@ -66,6 +77,11 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
     return "Error: Failed to get AI response";
   }
 
+  //O método _sendMessage() é chamado quando o botão de envio é pressionado. Ele primeiro obtém o texto da mensagem do controlador _textEditingController, removendo quaisquer espaços em branco no início e no final.
+  //Em seguida, é verificado se o texto da mensagem não está vazio. Se não estiver vazio, uma nova mensagem é criada usando o texto e um ID único com base no comprimento atual da lista _messages.
+  //O estado do aplicativo é atualizado usando setState() para adicionar a nova mensagem à lista _messages e definir _isSendingMessage como true. O controlador _textEditingController é limpo para que o campo de texto seja esvaziado.
+  //Em seguida, a função getAIResponse() é chamada para obter a resposta do chatbot. Assim que a resposta for recebida, o estado é atualizado novamente usando setState() para adicionar a resposta à lista _messages e marcar a mensagem enviada como lida adicionando o ID à lista _readMessageIds.
+  //Dessa forma, a interface do usuário é atualizada automaticamente com as mensagens enviadas e recebidas.
   void _sendMessage() async {
     String text = _textEditingController.text.trim();
     if (text.isNotEmpty) {

@@ -32,6 +32,7 @@ class WhatsAppChatScreen extends StatefulWidget {
 class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
   final TextEditingController _textEditingController = TextEditingController();
   final List<Message> _messages = [];
+  final Set<int> _readMessageIds = {};
 
   Future<String> getAIResponse(String message) async {
     var url = Uri.parse(
@@ -68,7 +69,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
     String text = _textEditingController.text.trim();
     if (text.isNotEmpty) {
       setState(() {
-        _messages.add(Message(sender: 'Eu', text: text));
+        _messages.add(Message(sender: 'Eu', text: text, isRead: true));
         _textEditingController.clear();
       });
 
@@ -82,6 +83,16 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
                 .replaceAll("\n", "")));
       });
     }
+  }
+
+  void _markMessageAsRead(int messageId) {
+    setState(() {
+      _readMessageIds.add(messageId);
+    });
+  }
+
+  bool _isMessageRead(int messageId) {
+    return _readMessageIds.contains(messageId);
   }
 
   @override
@@ -122,9 +133,12 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
                 itemBuilder: (BuildContext context, int index) {
                   Message message = _messages[index];
                   return MessageBubble(
+                    messageId: index,
                     sender: message.sender,
                     text: message.text,
                     isMe: message.sender == 'Eu',
+                    isRead: _isMessageRead(index),
+                    onMessageRead: _markMessageAsRead,
                   );
                 },
               ),
@@ -165,24 +179,38 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
 class Message {
   final String sender;
   final String text;
+  final bool isRead;
 
-  Message({required this.sender, required this.text});
+  Message({required this.sender, required this.text, this.isRead = false});
 }
 
 class MessageBubble extends StatelessWidget {
+  final int messageId;
   final String sender;
   final String text;
   final bool isMe;
+  final bool isRead;
+  final Function(int) onMessageRead;
 
   const MessageBubble({
     Key? key,
+    required this.messageId,
     required this.sender,
     required this.text,
     required this.isMe,
+    required this.isRead,
+    required this.onMessageRead,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    if (isMe && !isRead) {
+      // Marcar a mensagem como lida
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        onMessageRead(messageId);
+      });
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -210,16 +238,29 @@ class MessageBubble extends StatelessWidget {
                   ),
             elevation: 5.0,
             color: isMe ? Colors.lightBlueAccent : Colors.white,
-            child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 15.0,
-                  color: isMe ? Colors.white : Colors.black,
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 10.0, 30.0, 10.0),
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                      fontSize: 15.0,
+                      color: isMe ? Colors.white : Colors.black,
+                    ),
+                  ),
                 ),
-              ),
+                if (isMe && isRead)
+                  const Positioned(
+                    bottom: 0,
+                    right: 10,
+                    child: Icon(
+                      Icons.done_all,
+                      color: Color.fromARGB(255, 4, 84, 150),
+                      size: 16,
+                    ),
+                  ),
+              ],
             ),
           ),
         ],

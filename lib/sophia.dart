@@ -51,7 +51,8 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
         "https://api.openai.com/v1/engines/text-davinci-003/completions");
     var headers = {
       "Content-Type": "application/json",
-      "Authorization": "Bearer token",
+      "Authorization":
+          "Bearer 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",
     };
     var body = jsonEncode({
       "prompt":
@@ -86,7 +87,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
     String text = _textEditingController.text.trim();
     if (text.isNotEmpty) {
       setState(() {
-        _messages.add(Message(sender: 'Eu', text: text, isRead: true));
+        _messages.add(Message(sender: 'Me', text: text, isRead: true));
         _textEditingController.clear();
         _isSendingMessage = true;
       });
@@ -130,7 +131,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
             ),
             if (_isSendingMessage)
               const Text(
-                'Escrevendo...',
+                'typing...',
                 style: TextStyle(
                     fontSize: 12, color: Color.fromARGB(255, 0, 0, 0)),
               )
@@ -162,7 +163,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
                     messageId: index,
                     sender: message.sender,
                     text: message.text,
-                    isMe: message.sender == 'Eu',
+                    isMe: message.sender == 'Me',
                     isRead: _isMessageRead(index),
                     onMessageRead: _markMessageAsRead,
                   );
@@ -183,7 +184,7 @@ class _WhatsAppChatScreenState extends State<WhatsAppChatScreen> {
                     child: TextField(
                       controller: _textEditingController,
                       decoration: const InputDecoration(
-                        hintText: 'Digite uma mensagem...',
+                        hintText: 'Type a message...',
                         border: InputBorder.none,
                       ),
                     ),
